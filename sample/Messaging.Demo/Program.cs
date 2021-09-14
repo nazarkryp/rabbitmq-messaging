@@ -18,8 +18,7 @@ namespace Messaging.Demo
                 .Build();
 
             await Task.WhenAll(
-                host.RunAsync()
-                ,
+                host.RunAsync(),
                 host.Services.GetRequiredService<DemoService>().DemoAsync()
             );
         }

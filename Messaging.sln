@@ -3,13 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31205.134
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Messaging", "Messaging\Messaging.csproj", "{5943C923-BFDA-4779-9B7B-70DAEB1CB3B9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Messaging", "src\Messaging\Messaging.csproj", "{5943C923-BFDA-4779-9B7B-70DAEB1CB3B9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Messaging.RabbitMq", "Messaging.RabbitMq\Messaging.RabbitMq.csproj", "{EFE052E6-77DA-4386-BD3F-D585B63A18CF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Messaging.RabbitMq", "src\Messaging.RabbitMq\Messaging.RabbitMq.csproj", "{EFE052E6-77DA-4386-BD3F-D585B63A18CF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Messaging.Demo", "Messaging.Demo\Messaging.Demo.csproj", "{D1998873-183C-4CC1-85FA-B56372C8C8A7}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{1D21DE5B-408A-4B17-9883-31CE3CEB38E4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Messaging.Demo", "sample\Messaging.Demo\Messaging.Demo.csproj", "{D1998873-183C-4CC1-85FA-B56372C8C8A7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,6 +1,7 @@
 ﻿using System;
 
 using Messaging.Configuration;
+using Messaging.Handlers;
 using Messaging.Services;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -13,7 +14,7 @@ namespace Messaging.DependencyInjection
 
         IMessageHandlingBuilder AddTopic<TConfig>(Action<TConfig> configure) where TConfig : class, ITopicConfiguration;
 
-        IMessageHandlingBuilder AddHandler<THandler>() where THandler : class;
+        IMessageHandlingBuilder AddHandler<THandler>() where THandler : class, IMessageHandler;
     }
 
     public class MessageHandlingBuilder : IMessageHandlingBuilder
@@ -56,7 +57,7 @@ namespace Messaging.DependencyInjection
             return this;
         }
 
-        public IMessageHandlingBuilder AddHandler<THandler>() where THandler : class
+        public IMessageHandlingBuilder AddHandler<THandler>() where THandler : class, IMessageHandler
         {
             _services.Add(new ServiceDescriptor(typeof(THandler), typeof(THandler), ServiceLifetime.Transient));
 
