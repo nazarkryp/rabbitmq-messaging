@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package>
+  <metadata>
+    <id>NKryp.Messaging.RabbitMq</id>
+    <version>1.0.0.3</version>
+    <title>NKryp.Messaging.RabbitMq</title>
+    <authors>nazarkryp</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <projectUrl>https://github.com/nazarkryp/rabbitmq-messaging/</projectUrl>
+    <description>NKryp.Messaging.RabbitMq is a simple .NET Library that allows to easily implement messaging via RabbitMq queues and topic exchange.</description>
+    <copyright>$copyright$</copyright>
+    <tags>Messaging RabbitMq</tags>
+    <dependencies>
+      <dependency id="Microsoft.Extensions.Configuration.Binder" version="5.0.0" />
+      <dependency id="Microsoft.Extensions.DependencyInjection" version="5.0.1" />
+      <dependency id="RabbitMQ.Client" version="6.2.1" />
+      <dependency id="System.Text.Json" version="5.0.2" />
+    </dependencies>
+  </metadata>
+</package>

@@ -2,26 +2,26 @@
 
 NKryp.Messaging.RabbitMq is a simple .NET Library that allows to easily implement messaging via RabbitMq queues and topic exchange.
 
-
-
 ## Installing via Nuget
 
 ```
 Install-Package NKryp.Messaging.RabbitMq
 ```
 
-
-
 ## Usage
 
 #### 1. Add Commands and Events
 
+Add MessageKey *(optional)* - message identifier, queue - queue name, topic - topic name, attributes to your commands and messages.
+
 ```csharp
+[MessageKey("demo-command"), Queue("demo-queue")]
 public class DemoCommand
 {
     public string Message { get; set; }
 }
 
+[MessageKey("demo-event"), Topic("demo-topic")]
 public class DemoEvent
 {
     public string Message { get; set; }
@@ -61,17 +61,8 @@ services
         rabbitMqConfiguration.AmqpUrl = "amqp://guest:guest@localhost:5672";
         rabbitMqConfiguration.Password = "guest";
      })
-     .AddQueue<DemoQueueConfiguration>(queueConfiguration =>
-     {
-         queueConfiguration.QueueName = "demo-queue";
-     })
-     .AddTopic<DemoTopicConfiguration>(topicConfiguration =>
-     {
-         topicConfiguration.TopicName = "demo-topic";
-     })
      .AddHandler<DemoCommandHandler>()
      .AddHandler<DemoEventHandler>();
-
 ```
 
 #### 4. Inject IMessageSender\<Configuration> to your service
@@ -79,28 +70,26 @@ services
 ```csharp
 public class DemoService 
 {
-    private readonly IMessageSender<DemoQueueConfiguration> _demoQueueSender;
-    private readonly IMessageSender<DemoTopicConfiguration> _demoTopicSender;
+    private readonly ICommandSender _commandSender;
+    private readonly IEventPublisher _eventPublisher;
 
     public DemoService(
-        IMessageSender<DemoQueueConfiguration> demoQueueSender,
-        IMessageSender<DemoTopicConfiguration> _demoTopicSender) 
+        ICommandSender commandSender,
+        IEventPublisher eventPublisher) 
     {
-        _demoQueueSender = demoQueueSender;
-        _demoTopicSender = demoTopicSender;
+        _commandSender = commandSender;
+        _eventPublisher = eventPublisher;
     }
 
     public async Task DoSomethingAsync()
     {
-        await _demoQueueSender.SendAsync(new DemoCommand {
+        await _commandSender.SendAsync(new DemoCommand {
             Message = "This is some test message"
         });
 
-        await _demoTopicSender.SendAsync(new DemoEvent {
+        await _eventPublisher.SendAsync(new DemoEvent {
             Message = "This is some event message"
         });
     }
 }
 ```
-
-
