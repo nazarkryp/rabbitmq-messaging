@@ -101,7 +101,7 @@ namespace NKryp.Messaging.RabbitMq
                 }
             };
 
-            Channel.BasicConsume(queueName, true, basicConsumer);
+            Channel.BasicConsume(queueName, false, basicConsumer);
         }
 
         #endregion
