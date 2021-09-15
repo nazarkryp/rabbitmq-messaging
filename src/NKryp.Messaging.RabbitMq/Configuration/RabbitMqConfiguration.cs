@@ -2,14 +2,14 @@
 {
     public interface IRabbitMqConfiguration
     {
-        string AmqpUrl { get; }
+        string Uri { get; }
 
         string Password { get; }
     }
 
     public class RabbitMqConfiguration : IRabbitMqConfiguration
     {
-        public string AmqpUrl { get; set; }
+        public string Uri { get; set; }
 
         public string Password { get; set; }
     }

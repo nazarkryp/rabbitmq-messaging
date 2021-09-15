@@ -1,27 +1,26 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Logging;
+
 using NKryp.Messaging.Clients;
+using NKryp.Messaging.RabbitMq.Clients;
+
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
 namespace NKryp.Messaging.RabbitMq
 {
-    public class TopicClient : IClient
+    public class TopicClient : RabbitMqClientBase, IClient
     {
-        private readonly IConnectionFactory _connectionFactory;
+        private readonly ILogger<TopicClient> _logger;
         private readonly string _topicName;
 
-        private IConnection _connection;
-        private IModel _channel;
-
-        public TopicClient(string amqpUrl, string password, string topicName)
+        public TopicClient(string uri, string password, string topicName, ILoggerFactory loggerFactory)
+        : base(uri, password, loggerFactory)
         {
-            _connectionFactory = new ConnectionFactory
-            {
-                Uri = new Uri(amqpUrl),
-                Password = password
-            };
+            _logger = loggerFactory.CreateLogger<TopicClient>();
 
             if (string.IsNullOrEmpty(topicName))
             {
@@ -31,31 +30,23 @@ namespace NKryp.Messaging.RabbitMq
             _topicName = topicName;
         }
 
-        #region Private Properties
-
-        private IConnection Connection => _connection ??= _connectionFactory.CreateConnection();
-
-        private IModel Chanel => _channel ??= Connection.CreateModel();
-
-        #endregion
-
         #region Public Methods
 
         public Task SendAsync(IMessage message)
         {
             var command = (Message)message;
 
-            Chanel.ExchangeDeclare(_topicName, ExchangeType.Topic, durable: true);
+            Channel.ExchangeDeclare(_topicName, ExchangeType.Topic, durable: true);
 
             if (!command.UserProperties.TryGetValue("Key", out var key))
             {
                 throw new ArgumentNullException(nameof(key), "Message key is missing");
             }
 
-            var properties = Chanel.CreateBasicProperties();
+            var properties = Channel.CreateBasicProperties();
             properties.Type = key;
 
-            Chanel.BasicPublish(
+            Channel.BasicPublish(
                 exchange: _topicName,
                 routingKey: $"{_topicName}.ALL.subscription",
                 basicProperties: properties,
@@ -66,20 +57,20 @@ namespace NKryp.Messaging.RabbitMq
 
         public void Subscribe(Func<IMessage, Task> asyncFunc)
         {
-            var queueName = Chanel.QueueDeclare($"{_topicName}.subscription.queue", durable: true, autoDelete: false, exclusive: false).QueueName;
+            var queueName = Channel.QueueDeclare($"{_topicName}.subscription.queue", durable: true, autoDelete: false, exclusive: false).QueueName;
 
-            Chanel.ExchangeDeclare(_topicName, ExchangeType.Topic, durable: true);
-            Chanel.QueueBind(
+            Channel.ExchangeDeclare(_topicName, ExchangeType.Topic, durable: true);
+            Channel.QueueBind(
                 queue: queueName,
                 exchange: _topicName,
                 routingKey: $"{_topicName}.*.subscription");
 
-            var basicConsumer = new EventingBasicConsumer(Chanel);
+            var basicConsumer = new EventingBasicConsumer(Channel);
 
-            basicConsumer.Received += (sender, e) =>
+            basicConsumer.Received += async (sender, e) =>
             {
                 var body = e.Body.ToArray();
-
+                
                 var message = new Message
                 {
                     Body = body,
@@ -89,16 +80,28 @@ namespace NKryp.Messaging.RabbitMq
                     }
                 };
 
-                asyncFunc(message).GetAwaiter().GetResult();
+                try
+                {
+                    //_logger.LogInformation(" MessageId: {messageId}. Tag: {tag}.Redelivered: {redelivered}\n", e.BasicProperties.MessageId, e.DeliveryTag, e.Redelivered);
+
+                    await asyncFunc(message);
+
+                    Channel.BasicAck(e.DeliveryTag, false);
+                }
+                catch (Exception)
+                {
+                    if (e.Redelivered)
+                    {
+                        Channel.BasicAck(e.DeliveryTag, false);
+                    }
+                    else
+                    {
+                        Channel.BasicReject(e.DeliveryTag, true);
+                    }
+                }
             };
 
-            Chanel.BasicConsume(queueName, true, basicConsumer);
-        }
-
-        public void Dispose()
-        {
-            Connection.Dispose();
-            Chanel.Dispose();
+            Channel.BasicConsume(queueName, true, basicConsumer);
         }
 
         #endregion

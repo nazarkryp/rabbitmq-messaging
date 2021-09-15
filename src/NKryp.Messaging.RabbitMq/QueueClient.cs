@@ -1,42 +1,41 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Logging;
+
 using NKryp.Messaging.Clients;
+using NKryp.Messaging.RabbitMq.Clients;
 
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
 namespace NKryp.Messaging.RabbitMq
 {
-    public class QueueClient : IClient
+    public class QueueClient : RabbitMqClientBase, IClient
     {
+        #region Private Fields
+
+        private readonly ILogger<QueueClient> _logger;
         private readonly string _queueName;
-        private readonly IConnectionFactory _connectionFactory;
 
-        private IConnection _connection;
-        private IModel _channel;
+        #endregion
 
-        public QueueClient(string amqpUrl, string password, string queueName)
+        #region Constructor
+
+        public QueueClient(string uri, string password, string queueName, ILoggerFactory loggerFactory)
+        : base(uri, password, loggerFactory)
         {
-            _connectionFactory = new ConnectionFactory
-            {
-                Uri = new Uri(amqpUrl),
-                Password = password
-            };
+            _logger = loggerFactory.CreateLogger<QueueClient>();
 
             if (string.IsNullOrEmpty(queueName))
             {
-                throw new ArgumentNullException(nameof(queueName), "Queue name cannot be empty");
+                throw new ArgumentNullException(nameof(queueName), "QueueName is missing");
             }
 
             _queueName = queueName;
         }
-
-        #region Private Properties
-
-        private IConnection Connection => _connection ??= _connectionFactory.CreateConnection();
-
-        private IModel Channel => _channel ??= Connection.CreateModel();
 
         #endregion
 
@@ -44,19 +43,22 @@ namespace NKryp.Messaging.RabbitMq
 
         public Task SendAsync(IMessage message)
         {
-            var command = (Message)message;
-
             Channel.QueueDeclare(_queueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
 
-            if (!command.UserProperties.TryGetValue("Key", out var key))
+            if (!message.UserProperties.TryGetValue("Key", out var key))
             {
                 throw new ArgumentNullException(nameof(key), "Message key is missing");
             }
 
             var properties = Channel.CreateBasicProperties();
             properties.Type = key;
+            properties.MessageId = Guid.NewGuid().ToString();
+            properties.Headers = new Dictionary<string, object>
+            {
+                ["x-attempt-count"] = 0
+            };
 
-            Channel.BasicPublish(exchange: string.Empty, _queueName, properties, command.Body);
+            Channel.BasicPublish(string.Empty, _queueName, properties, message.Body);
 
             return Task.CompletedTask;
         }
@@ -69,32 +71,38 @@ namespace NKryp.Messaging.RabbitMq
 
             basicConsumer.Received += async (sender, e) =>
             {
-                var body = e.Body.ToArray();
                 var message = new Message
                 {
-                    Body = body,
+                    Body = e.Body.ToArray(),
                     UserProperties =
                     {
+                        ["MessageId"] = e.BasicProperties.MessageId,
                         ["Key"] = e.BasicProperties.Type
                     }
                 };
-
+                
                 try
                 {
+                    //_logger.LogInformation(" MessageId: {messageId}. Tag: {tag}.Redelivered: {redelivered}\n", e.BasicProperties.MessageId, e.DeliveryTag, e.Redelivered);
+
                     await asyncFunc(message);
+
+                    Channel.BasicAck(e.DeliveryTag, false);
                 }
                 catch (Exception)
                 {
-                    // ignored
+                    if (e.Redelivered)
+                    {
+                        Channel.BasicAck(e.DeliveryTag, false);
+                    }
+                    else
+                    {
+                        Channel.BasicReject(e.DeliveryTag, true);
+                    }
                 }
             };
 
-            Channel.BasicConsume(_queueName, true, basicConsumer);
-        }
-
-        public void Dispose()
-        {
-            Channel.Close();
+            Channel.BasicConsume(_queueName, false, basicConsumer);
         }
 
         #endregion

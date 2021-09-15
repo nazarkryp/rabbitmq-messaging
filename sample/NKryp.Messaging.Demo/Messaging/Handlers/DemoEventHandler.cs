@@ -17,7 +17,7 @@ namespace NKryp.Messaging.Demo.Messaging.Handlers
 
         public Task HandleAsync(DemoEvent @event)
         {
-            _logger.LogInformation("Event received: {@event}", @event);
+            _logger.LogInformation("\nEvent Received: {@event}\n", @event);
 
             return Task.CompletedTask;
         }

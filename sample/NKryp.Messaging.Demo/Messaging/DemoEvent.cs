@@ -12,6 +12,8 @@ namespace NKryp.Messaging.Demo.Messaging
 
         public string Message { get; set; }
 
+        public DateTime Date { get; set; }
+
         public override string ToString()
         {
             return JsonSerializer.Serialize(this, new JsonSerializerOptions

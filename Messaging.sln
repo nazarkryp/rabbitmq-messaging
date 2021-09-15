@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NKryp.Messaging.RabbitMq", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NKryp.Messaging.Demo", "sample\NKryp.Messaging.Demo\NKryp.Messaging.Demo.csproj", "{D1998873-183C-4CC1-85FA-B56372C8C8A7}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Library", "Library", "{C9028435-5F32-48A3-B224-D902875EC4CF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,6 +32,10 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{5943C923-BFDA-4779-9B7B-70DAEB1CB3B9} = {C9028435-5F32-48A3-B224-D902875EC4CF}
+		{EFE052E6-77DA-4386-BD3F-D585B63A18CF} = {C9028435-5F32-48A3-B224-D902875EC4CF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {44F6E0AA-2135-4867-BF45-B4125BCA8B0B}

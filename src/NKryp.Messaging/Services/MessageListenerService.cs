@@ -111,8 +111,6 @@ namespace NKryp.Messaging.Services
             catch (Exception exception)
             {
                 _logger.LogError(exception, "Error processing message");
-
-                throw;
             }
         }
     }

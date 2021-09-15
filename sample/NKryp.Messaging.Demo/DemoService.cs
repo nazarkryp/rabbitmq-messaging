@@ -20,13 +20,8 @@ namespace NKryp.Messaging.Demo
         public async Task DemoAsync()
         {
             await SendCommand();
-            await SendCommand();
-
-            //await Task.Delay(1000);
-            //await SendCommand();
-            //await Task.Delay(3000);
-            //await SendCommand();
-            // await SendEvent();
+            await SendEvent();
+            await SendEvent();
         }
 
         private async Task SendCommand()
@@ -34,11 +29,18 @@ namespace NKryp.Messaging.Demo
             var command = new DemoCommand
             {
                 Id = Guid.NewGuid(),
-                Content = "This is command message",
+                Message = "This is command message",
                 Date = DateTime.Now
             };
 
-            await _commandSender.SendAsync(command);
+            try
+            {
+                await _commandSender.SendAsync(command);
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.Message);
+            }
         }
 
         private async Task SendEvent()
@@ -46,7 +48,8 @@ namespace NKryp.Messaging.Demo
             var @event = new DemoEvent
             {
                 Id = Guid.NewGuid(),
-                Message = "This is some event message"
+                Message = "This is some event message",
+                Date = DateTime.Now
             };
 
             await _eventPublisher.PublishAsync(@event);

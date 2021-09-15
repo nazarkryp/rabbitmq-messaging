@@ -4,6 +4,6 @@ namespace NKryp.Messaging.Factories
 {
     public interface ITopicClientFactory
     {
-        IClient Create(string topicName);
+        IClient Create(string topicName, bool createNew = false);
     }
 }

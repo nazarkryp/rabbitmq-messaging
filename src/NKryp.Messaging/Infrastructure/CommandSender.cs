@@ -26,6 +26,7 @@ namespace NKryp.Messaging.Infrastructure
         {
             var queueName = QueueNameProvider.GetQueueName(command.GetType());
             var message = _messageSerializer.Serialize(command);
+
             var queueClient = _queueClientFactory.Create(queueName);
 
             return queueClient.SendAsync(message);

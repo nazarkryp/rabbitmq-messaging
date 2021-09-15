@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>NKryp.Messaging.RabbitMq</id>
-    <version>1.0.0.3</version>
+    <version>1.0.0.4</version>
     <title>NKryp.Messaging.RabbitMq</title>
     <authors>nazarkryp</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>

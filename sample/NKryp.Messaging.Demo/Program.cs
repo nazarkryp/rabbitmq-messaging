@@ -1,11 +1,11 @@
 ﻿using System.Threading.Tasks;
 
-using NKryp.Messaging.Demo.Messaging.Handlers;
-using NKryp.Messaging.RabbitMq.Infrastructure;
-
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+
+using NKryp.Messaging.Demo.Messaging.Handlers;
+using NKryp.Messaging.RabbitMq.Infrastructure;
 
 namespace NKryp.Messaging.Demo
 {
@@ -41,7 +41,7 @@ namespace NKryp.Messaging.Demo
                         .AddRabbitMqMessaging(rabbitMqConfiguration =>
                         {
                             var rabbitMqConfigurationSection = configuration.GetSection("RabbitMqConfiguration");
-                            rabbitMqConfiguration.AmqpUrl = rabbitMqConfigurationSection.GetValue<string>("AmqpUrl");
+                            rabbitMqConfiguration.Uri = rabbitMqConfigurationSection.GetValue<string>("AmqpUrl");
                             rabbitMqConfiguration.Password = rabbitMqConfigurationSection.GetValue<string>("Password");
                         })
                         .AddHandler<DemoCommandHandler>()

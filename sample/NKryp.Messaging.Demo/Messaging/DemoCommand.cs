@@ -10,7 +10,7 @@ namespace NKryp.Messaging.Demo.Messaging
     {
         public Guid Id { get; set; }
 
-        public string Content { get; set; }
+        public string Message { get; set; }
 
         public DateTime Date { get; set; }
 
