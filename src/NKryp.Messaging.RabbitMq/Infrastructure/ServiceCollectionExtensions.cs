@@ -15,7 +15,7 @@ namespace NKryp.Messaging.RabbitMq.Infrastructure
         {
             services.AddCoreMessaging();
 
-            services.AddScoped<IQueueClientFactory, RabbitMqQueueClientFactory>();
+            services.AddSingleton<IQueueClientFactory, RabbitMqQueueClientFactory>();
             services.AddSingleton<ITopicClientFactory, RabbitMqTopicClientFactory>();
 
             services.AddSingleton<IRabbitMqConfiguration, RabbitMqConfiguration>(_ =>

@@ -62,7 +62,8 @@ services
         rabbitMqConfiguration.Password = "guest";
      })
      .AddHandler<DemoCommandHandler>()
-     .AddHandler<DemoEventHandler>();
+     .AddHandler<DemoEventHandler>()
+     .AddMessagingHostedService();
 ```
 
 #### 4. Inject IMessageSender\<Configuration> to your service
